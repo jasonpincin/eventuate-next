@@ -3,21 +3,27 @@ var Promise            = require('promise-polyfill'),
     NextCancelledError = require('./errors').NextCancelledError
 
 module.exports = function eventuateNext (eventuate, cb) {
-  if (typeof eventuate.destroyed !== 'function')
+  if (typeof eventuate.consume !== 'function')
     throw new TypeError('first argument should be a non-basic eventuate')
 
   var done = eventuate.isDestroyed()
     ? Promise.reject(new NextCancelledError('eventuate destroyed', true))
     : new Promise(function nextPromise (resolve, reject) {
-      nextConsumer.removed = nextConsumerRemoved
-      eventuate.consume(nextConsumer)
+      var consumption = eventuate.consume(onData, onError)
+      consumption.once('end', cancel)
+      eventuate.once('destroy', cancel)
 
-      function nextConsumer (data) {
+      function onData (data) {
         resolve(data)
         cleanup()
       }
 
-      function nextConsumerRemoved () {
+      function onError (err) {
+        reject(err)
+        cleanup()
+      }
+
+      function cancel () {
         var err = eventuate.isDestroyed()
           ? new NextCancelledError('eventuate destroyed', true)
           : new NextCancelledError('eventuate consumer removed')
@@ -26,7 +32,8 @@ module.exports = function eventuateNext (eventuate, cb) {
       }
 
       function cleanup () {
-        eventuate.removeConsumer(nextConsumer)
+        consumption.removeListener('end', cancel)
+        consumption.end()
       }
     })
   return after(done, cb)
