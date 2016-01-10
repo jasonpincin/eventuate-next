@@ -11,9 +11,9 @@ test('next returns a promise that resolves', function (t) {
   next(event).then(function (data) {
     t.equals(data, 'test', 'promise resolves with data')
   })
-  t.equals(event.getConsumers().length, 1, '.consumers contains next consumer')
+  t.equals(event.consumers().length, 1, '.consumers contains next consumer')
   event.produce('test')
-  t.equals(event.getConsumers().length, 0,
+  t.equals(event.consumers().length, 0,
            'next consumer removed from consumers promise resolves')
 })
 

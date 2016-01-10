@@ -11,10 +11,10 @@ test('next accepts a callback', function (t) {
   next(event, function consume (_, data) {
     t.equals(data, 'test', 'callback consumer receives data')
   })
-  t.equals(event.getConsumers().length, 1,
+  t.equals(event.consumers().length, 1,
            '.consumers should contain next consumer')
   event.produce('test')
-  t.equals(event.getConsumers().length, 0,
+  t.equals(event.consumers().length, 0,
            'next consumer removed from consumers after callback called')
 })
 
