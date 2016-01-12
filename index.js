@@ -4,7 +4,7 @@ var Promise            = require('promise-polyfill'),
 
 module.exports = function eventuateNext (eventuate, cb) {
   if (typeof eventuate.consume !== 'function')
-    throw new TypeError('first argument should be a non-basic eventuate')
+    throw new TypeError('first argument must be an eventuate')
 
   var done = eventuate.isDestroyed()
     ? Promise.reject(new NextCancelledError('eventuate destroyed', true))
